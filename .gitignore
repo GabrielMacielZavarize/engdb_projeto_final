@@ -1,0 +1,21 @@
+# Variáveis de ambiente (segredos) — nunca versionar
+.env
+.env.*
+!.env.example
+
+# Dados locais / volumes
+data/
+*.local
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.ipynb_checkpoints/
+
+# Sistema operacional / editores
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
