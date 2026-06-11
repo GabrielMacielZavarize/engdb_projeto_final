@@ -1,0 +1,84 @@
+name: engdb
+
+# ==========================================================================
+# Ambiente base do projeto — Issue #20
+#   - postgres : banco de origem (dados transacionais)
+#   - minio    : object storage que hospeda o Data Lake (arquitetura medalhão)
+#   - createbuckets : container efêmero que cria o bucket inicial do Data Lake
+#
+# Subir:    docker compose up -d
+# Derrubar: docker compose down            (mantém os dados nos volumes)
+#           docker compose down -v         (APAGA os dados dos volumes)
+# ==========================================================================
+
+services:
+  postgres:
+    image: postgres:16.14-alpine
+    container_name: engdb-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - "${POSTGRES_PORT:-5434}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - datalake
+
+  minio:
+    image: minio/minio:RELEASE.2025-09-07T16-13-09Z
+    container_name: engdb-minio
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+    ports:
+      - "${MINIO_API_PORT:-9000}:9000"      # API S3
+      - "${MINIO_CONSOLE_PORT:-9001}:9001"  # Console web
+    volumes:
+      - minio_data:/data
+    networks:
+      - datalake
+
+  # Container efêmero: espera o MinIO responder e cria o bucket do Data Lake.
+  createbuckets:
+    image: minio/mc:RELEASE.2025-08-13T08-35-41Z
+    container_name: engdb-createbuckets
+    depends_on:
+      - minio
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+      DATALAKE_BUCKET: ${DATALAKE_BUCKET}
+    entrypoint: >
+      /bin/sh -c "
+      until mc alias set local http://minio:9000 \"$${MINIO_ROOT_USER}\" \"$${MINIO_ROOT_PASSWORD}\"; do
+        echo 'Aguardando MinIO...'; sleep 2;
+      done;
+      mc mb --ignore-existing local/\"$${DATALAKE_BUCKET}\";
+      echo '==> Bucket pronto: '$${DATALAKE_BUCKET};
+      mc ls local;
+      "
+    restart: "no"
+    networks:
+      - datalake
+
+volumes:
+  postgres_data:
+    name: engdb_postgres_data
+  minio_data:
+    name: engdb_minio_data
+
+networks:
+  datalake:
+    name: engdb_datalake
+    driver: bridge
