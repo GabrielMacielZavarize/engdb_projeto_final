@@ -137,9 +137,9 @@ O DER preliminar tem como objetivo fornecer uma visão inicial da estrutura de d
 
 ### Documentos
 
-- Análise do Dataset.pdf
-- Definição do Domínio.pdf
-- DER - Preliminar.pdf
+- [Análise do Dataset.pdf](https://github.com/user-attachments/files/28689848/Analise.do.Dataset.pdf)
+- [Definição do Domínio.pdf](https://github.com/user-attachments/files/28690145/Definicao.do.Dominio.pdf)
+- [DER - Preliminar.pdf](https://github.com/user-attachments/files/28690540/DER.-.Preliminar.pdf)
 
 ### Imagens
 
