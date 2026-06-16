@@ -5,10 +5,12 @@ name: engdb
 #   - postgres : banco de origem (dados transacionais)
 #   - minio    : object storage que hospeda o Data Lake (arquitetura medalhão)
 #   - createbuckets : container efêmero que cria o bucket inicial do Data Lake
+#   - airflow       : orquestração (profile "airflow") — issue #30
 #
-# Subir:    docker compose up -d
-# Derrubar: docker compose down            (mantém os dados nos volumes)
-#           docker compose down -v         (APAGA os dados dos volumes)
+# Subir base:     docker compose up -d
+# Subir + Airflow: docker compose --profile airflow up -d --build
+# Derrubar:       docker compose down            (mantém os dados nos volumes)
+#                 docker compose down -v         (APAGA os dados dos volumes)
 # ==========================================================================
 
 services:
@@ -24,6 +26,7 @@ services:
       - "${POSTGRES_PORT:-5434}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./docker/postgres/initdb:/docker-entrypoint-initdb.d:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
       interval: 10s
@@ -72,11 +75,66 @@ services:
     networks:
       - datalake
 
+  # Orquestração (profile "airflow"). Reaproveita o postgres como metadata DB.
+  airflow:
+    build:
+      context: .
+      dockerfile: docker/airflow/Dockerfile
+    image: engdb-airflow:local
+    container_name: engdb-airflow
+    profiles: ["airflow"]
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      minio:
+        condition: service_started
+    environment:
+      AIRFLOW__CORE__EXECUTOR: LocalExecutor
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/airflow
+      AIRFLOW__CORE__LOAD_EXAMPLES: "false"
+      AIRFLOW__CORE__DAGS_FOLDER: /opt/airflow/dags
+      AIRFLOW__CORE__FERNET_KEY: ${AIRFLOW_FERNET_KEY:-}
+      AIRFLOW__WEBSERVER__EXPOSE_CONFIG: "true"
+      JAVA_HOME: /usr/lib/jvm/java-17-openjdk-amd64
+      # credenciais do admin (criadas no startup)
+      AIRFLOW_ADMIN_USER: ${AIRFLOW_ADMIN_USER:-admin}
+      AIRFLOW_ADMIN_PASSWORD: ${AIRFLOW_ADMIN_PASSWORD:-admin}
+      # acesso ao postgres (para criar o banco de metadados)
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      # MinIO para os notebooks
+      MINIO_ENDPOINT: http://minio:9000
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+      DATALAKE_BUCKET: ${DATALAKE_BUCKET}
+    ports:
+      - "${AIRFLOW_PORT:-8080}:8080"
+    volumes:
+      - ./airflow/dags:/opt/airflow/dags
+      - ./notebooks:/opt/airflow/notebooks
+      - airflow_logs:/opt/airflow/logs
+    command:
+      - bash
+      - -c
+      - |
+        python /opt/airflow/ensure_metadata_db.py
+        airflow db migrate
+        airflow users create --username "$${AIRFLOW_ADMIN_USER}" --password "$${AIRFLOW_ADMIN_PASSWORD}" \
+          --firstname Admin --lastname User --role Admin --email admin@example.com || true
+        airflow scheduler &
+        exec airflow webserver
+    networks:
+      - datalake
+
 volumes:
   postgres_data:
     name: engdb_postgres_data
   minio_data:
     name: engdb_minio_data
+  airflow_logs:
+    name: engdb_airflow_logs
 
 networks:
   datalake:

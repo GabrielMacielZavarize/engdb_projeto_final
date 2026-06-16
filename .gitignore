@@ -7,6 +7,10 @@
 data/
 *.local
 
+# Saídas geradas pelo Papermill / notebooks
+notebooks/output/
+.ipynb_checkpoints/
+
 # Python
 __pycache__/
 *.py[cod]
