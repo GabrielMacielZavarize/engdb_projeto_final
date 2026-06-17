@@ -111,7 +111,7 @@ O diagrama abaixo representa as principais entidades identificadas no domínio d
 
 O modelo foi elaborado com base na análise do dataset Olist e servirá como referência para as etapas posteriores de modelagem lógica e física do banco de dados.
 
-![DER Preliminar](../imagens/der_preliminar.png)
+![DER Preliminar](../imagens/DER_preliminar.png)
 
 ### Principais Relacionamentos
 
