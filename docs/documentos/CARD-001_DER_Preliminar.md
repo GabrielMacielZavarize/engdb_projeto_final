@@ -2,7 +2,7 @@
 
 O diagrama abaixo representa as principais entidades identificadas no domínio de negócio do projeto, bem como seus relacionamentos iniciais. O modelo foi elaborado com base na análise do dataset Olist e servirá como referência para as etapas de modelagem lógica e física do banco de dados.
 
-![DER Preliminar](../imagens/der_preliminar.png)
+![DER Preliminar](../imagens/DER_preliminar.png)
 
 **Observação:** Este modelo possui caráter preliminar e poderá sofrer ajustes durante as etapas de desenvolvimento, conforme a necessidade de adequação aos requisitos funcionais e analíticos do projeto.
 

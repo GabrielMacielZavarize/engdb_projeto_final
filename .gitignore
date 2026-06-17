@@ -9,6 +9,7 @@ data/
 
 # Saídas geradas pelo Papermill / notebooks
 notebooks/output/
+notebooks/runs/
 .ipynb_checkpoints/
 
 # Build do MkDocs
