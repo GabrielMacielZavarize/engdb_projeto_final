@@ -11,6 +11,9 @@ data/
 notebooks/output/
 .ipynb_checkpoints/
 
+# Build do MkDocs
+site/
+
 # Python
 __pycache__/
 *.py[cod]

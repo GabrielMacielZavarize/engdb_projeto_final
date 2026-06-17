@@ -1,0 +1,77 @@
+site_name: Projeto Final - Engenharia de Dados
+site_description: Pipeline de dados de ponta a ponta sobre o dataset Olist (medalhão, Spark/Delta, Airflow, Trino, Metabase).
+repo_url: https://github.com/GabrielMacielZavarize/engdb_projeto_final
+repo_name: engdb_projeto_final
+edit_uri: edit/main/docs/
+
+theme:
+  name: material
+  language: pt-BR
+  palette:
+    - scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/weather-night
+        name: Modo escuro
+    - scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/weather-sunny
+        name: Modo claro
+  features:
+    - navigation.sections
+    - navigation.top
+    - navigation.footer
+    - content.code.copy
+    - search.highlight
+    - search.suggest
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.superfences
+  - pymdownx.details
+
+plugins:
+  - search:
+      lang: pt
+
+# Evita que arquivos fora do nav (PDFs, imagens, duplicados em /documentos)
+# quebrem o build.
+validation:
+  nav:
+    omitted_files: info
+    not_found: warn
+  links:
+    not_found: warn
+
+nav:
+  - Home: index.md
+  - Visão Geral:
+      - Padrões de Contribuição: PADROES.md
+  - Domínio:
+      - Definição do Domínio: dominio/CARD-001_definicao_dominio.md
+      - Análise do Dataset: documentos/CARD-001_analise_de_dataset.md
+  - Modelagem:
+      - DER Preliminar: documentos/CARD-001_DER_Preliminar.md
+      - DER Inicial (Olist): modelagem/CARD-003_der_inicial_olist.md
+      - Dicionário de Dados: modelagem/CARD-003_dicionario_dados_inicial.md
+      - Justificativa dos Atributos: modelagem/CARD-002_justificativa_selecao_atributos.md
+      - Modelo Físico (Supabase): modelagem/CARD-007_modelo_fisico_banco_origem.md
+  - Arquitetura:
+      - Arquitetura Técnica: arquitetura/CARD-004_arquitetura_tecnica_pipeline.md
+      - Diagrama da Arquitetura: arquitetura/CARD-005_diagrama_arquitetura_dados.md
+  - Pipeline & Infraestrutura:
+      - Padrão de Notebooks (Spark/Delta): PIPELINE-24_notebook_standard.md
+      - Ambiente Local (MinIO + PostgreSQL): infra/ambiente-local.md
+      - Airflow + Papermill: infra/airflow-papermill.md
+  - Dashboard:
+      - Requisitos do Dashboard: dashboards/CARD-006_requisitos_dashboard.md
