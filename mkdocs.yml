@@ -71,6 +71,7 @@ nav:
       - Diagrama da Arquitetura: arquitetura/CARD-005_diagrama_arquitetura_dados.md
   - Pipeline & Infraestrutura:
       - Padrão de Notebooks (Spark/Delta): PIPELINE-24_notebook_standard.md
+      - Camadas do Pipeline (medalhão): pipeline/CARD-038_camadas_pipeline.md
       - Ambiente Local (MinIO + PostgreSQL): infra/ambiente-local.md
       - Airflow + Papermill: infra/airflow-papermill.md
   - Dashboard:
