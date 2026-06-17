@@ -183,6 +183,13 @@ Formatos aceitos:
 - `psql` instalado na máquina cliente.
 - Os arquivos da massa sintética em uma pasta local.
 
+> **Onde achar a connection string (painel novo do Supabase):** botão verde
+> **"Connect"** no topo do dashboard → seção **Session pooler**. A conexão
+> direta (`db.<ref>.supabase.co`) hoje só resolve em **IPv6**; como o pipeline
+> roda em containers Docker que saem por **IPv4**, padronizamos o uso do
+> **pooler** (`aws-1-<regiao>.pooler.supabase.com`, porta `5432`), cujo usuário
+> vem como `postgres.<project-ref>`.
+
 ### Exemplo de execução
 
 ```powershell
@@ -193,7 +200,7 @@ Formatos aceitos:
   -MinimumTotalRows 100000
 
 .\scripts\load_source_data.ps1 `
-  -ConnectionString "postgresql://postgres:[SENHA]@db.[PROJECT-REF].supabase.co:5432/postgres?sslmode=require" `
+  -ConnectionString "postgresql://postgres.[PROJECT-REF]:[SENHA]@aws-1-sa-east-1.pooler.supabase.com:5432/postgres?sslmode=require" `
   -DataDir ".\data\source" `
   -ExpectedCountsFile ".\data\source\expected-counts.json"
 ```
@@ -251,4 +258,5 @@ Se qualquer uma dessas validações retornar inconsistência, o processo encerra
 - O modelo físico foi desenhado para a **massa sintética aderente ao DER lógico**, e não para ingestão direta dos CSVs originais do dataset público da Olist.
 - Identificadores como `address_id`, `payment_id`, `shipment_id` e `order_item_id` precisam existir nos arquivos gerados, porque fazem parte do modelo lógico adotado pelo projeto.
 - Como o projeto utilizará Supabase, a carga foi implementada com `psql` e `\copy`, o que permite importar arquivos locais para um PostgreSQL remoto com `sslmode=require`.
+- A conexão padronizada do projeto é via **Session pooler** (IPv4); a conexão direta do Supabase passou a ser IPv6-only e não funciona de dentro dos containers Docker do pipeline.
 - O schema físico pode ser usado tanto no Supabase quanto em qualquer PostgreSQL compatível.
