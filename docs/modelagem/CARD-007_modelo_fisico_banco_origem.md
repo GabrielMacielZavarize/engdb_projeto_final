@@ -36,6 +36,50 @@ O modelo físico segue o DER lógico e adiciona algumas proteções importantes 
 - `order_items` preserva a chave lógica `order_item_id` como identificador global do item, o que exige valores únicos já na massa sintética gerada.
 - `products.category_id` é opcional (`NULL`) porque a própria documentação do projeto indica que nem todo produto precisa ter categoria preenchida.
 - Campos numéricos de valor, peso, dimensões e quantidade possuem checks de não negatividade.
+- Todas as tabelas possuem `created_at` e `updated_at` para permitir detecção de mudanças na origem.
+- O campo `updated_at` é mantido por trigger em updates comuns e também pode ser definido explicitamente pelos scripts de demonstração.
+
+## Controles para carga incremental
+
+A origem `source` precisa expor uma forma simples de identificar registros novos ou alterados.
+Para isso, todas as tabelas carregadas pelo pipeline recebem as colunas:
+
+- `created_at`: data/hora de criação do registro na origem;
+- `updated_at`: data/hora da última alteração relevante do registro.
+
+Essas colunas são criadas com `default current_timestamp`, possuem validação
+`updated_at >= created_at` e são indexadas por `updated_at`. O DDL também cria
+uma função/trigger para atualizar `updated_at` automaticamente quando um registro
+for modificado sem informar um valor explícito.
+
+Como a carga inicial usa arquivos CSV/JSON gerados a partir do dataset Olist,
+`created_at` e `updated_at` não precisam existir nos arquivos de entrada. O
+loader informa somente as colunas de negócio e o PostgreSQL preenche os campos
+de controle pelos defaults.
+
+## Chaves de negócio para SCD Tipo 2
+
+As dimensões históricas definidas na camada Gold usam as seguintes chaves de
+negócio:
+
+| Dimensão Gold | Tabela(s) de origem | Chave de negócio | Atributos versionados principais |
+| ------------- | ------------------- | ---------------- | -------------------------------- |
+| `dim_customer` | `source.customers` | `customer_id` | `customer_unique_id`, CEP, cidade e UF |
+| `dim_seller` | `source.sellers` | `seller_id` | CEP, cidade e UF |
+| `dim_product` | `source.products` + `source.categories` | `product_id` | categoria, peso, fotos e dimensões físicas |
+| `dim_date` | gerada na Gold | `date_sk` | dimensão estática de calendário |
+
+Observação sobre clientes: o dataset Olist também possui `customer_unique_id`,
+mas o modelo Gold atual usa `customer_id` como chave natural da `dim_customer`,
+pois é a chave que relaciona diretamente clientes e pedidos no schema `source`.
+
+Para os fatos, os grãos usados pela Gold continuam:
+
+| Fato Gold | Tabela(s) de origem | Chave/grão |
+| --------- | ------------------- | ---------- |
+| `fact_orders` | `source.orders` + pagamentos agregados | `order_id` |
+| `fact_order_items` | `source.order_items` | `order_item_id` |
+| `fact_payments` | `source.payments` | `payment_id` |
 
 ## Arquivos versionados
 
@@ -43,6 +87,7 @@ Os artefatos da implementação ficaram organizados assim:
 
 - DDL principal: [`sql/01_create_source_schema.sql`](../../sql/01_create_source_schema.sql)
 - Validação pós-carga: [`sql/02_validate_source_data.sql`](../../sql/02_validate_source_data.sql)
+- Cenário de mudanças para demo incremental: [`sql/03_seed_incremental_demo.sql`](../../sql/03_seed_incremental_demo.sql)
 - Geração da massa reduzida: [`scripts/build_reduced_source_data.ps1`](../../scripts/build_reduced_source_data.ps1)
 - Script de carga para Supabase/PostgreSQL: [`scripts/load_source_data.ps1`](../../scripts/load_source_data.ps1)
 
@@ -175,6 +220,10 @@ Formatos aceitos:
 - `price`
 - `freight_value`
 
+> As colunas `created_at` e `updated_at` fazem parte das tabelas no Supabase,
+> mas não são obrigatórias nos arquivos de carga. Quando omitidas, recebem os
+> valores definidos pelo banco.
+
 ## Como executar no Supabase
 
 ### Pré-requisitos
@@ -213,6 +262,55 @@ O script:
 4. executa as validações SQL de integridade;
 5. compara as contagens finais com um JSON opcional de volumes esperados.
 
+## Como disparar o cenário de mudanças incrementais
+
+Depois da primeira carga no Supabase, execute o seed de demonstração:
+
+```powershell
+psql `
+  "postgresql://postgres.[PROJECT-REF]:[SENHA]@aws-1-sa-east-1.pooler.supabase.com:5432/postgres?sslmode=require" `
+  -X `
+  -v ON_ERROR_STOP=1 `
+  -f ".\sql\03_seed_incremental_demo.sql"
+```
+
+O script `03_seed_incremental_demo.sql` prepara um cenário reproduzível:
+
+- normaliza todos os registros existentes para o checkpoint base
+  `2026-01-01 00:00:00`;
+- aplica updates em cliente, vendedor, produto, pedido, pagamento e remessa com
+  `updated_at = '2026-01-02 00:00:00'`;
+- insere uma nova categoria, cliente, vendedor, produto, pedido, endereço,
+  pagamento, avaliação, remessa e item de pedido;
+- cria o pedido demo com `order_purchase_timestamp = '2019-01-15 10:00:00'`,
+  posterior ao período original do Olist, para facilitar a demonstração de
+  checkpoint dos fatos.
+
+Consulta rápida para conferir o que mudou após o checkpoint base:
+
+```sql
+select 'customers' as table_name, count(*) as changed_rows
+from source.customers
+where updated_at > timestamp '2026-01-01 00:00:00'
+union all
+select 'sellers', count(*)
+from source.sellers
+where updated_at > timestamp '2026-01-01 00:00:00'
+union all
+select 'products', count(*)
+from source.products
+where updated_at > timestamp '2026-01-01 00:00:00'
+union all
+select 'orders', count(*)
+from source.orders
+where updated_at > timestamp '2026-01-01 00:00:00'
+union all
+select 'payments', count(*)
+from source.payments
+where updated_at > timestamp '2026-01-01 00:00:00'
+order by table_name;
+```
+
 ## Volume mínimo esperado para o trabalho
 
 Para atender ao critério acadêmico de volume mínimo, a recomendação atual do projeto é gerar a massa com:
@@ -246,6 +344,7 @@ Caso a massa sintética seja gerada com volume conhecido, recomenda-se manter um
 O arquivo `sql/02_validate_source_data.sql` executa:
 
 - contagem de linhas por tabela;
+- checagem das colunas de controle `created_at` e `updated_at`;
 - checagem de relacionamentos órfãos;
 - checagem de duplicidade indevida em relacionamentos `1:1`;
 - checagem de duplicidade em `payments(order_id, payment_sequential)`;
