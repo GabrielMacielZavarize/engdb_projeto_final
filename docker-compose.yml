@@ -135,6 +135,67 @@ services:
     networks:
       - datalake
 
+  # ====== Serving (profile "serving") — issue #46: Trino + Metabase sobre a Gold ======
+  # Suba com:  docker compose --profile serving up -d
+  # (Recomendado não rodar junto com o Airflow/Spark nesta máquina de 8GB.)
+
+  # Hive Metastore (Derby embutido) — exigido pelo conector delta_lake do Trino.
+  hive-metastore:
+    image: apache/hive:4.0.1
+    container_name: engdb-hive-metastore
+    profiles: ["serving"]
+    environment:
+      SERVICE_NAME: metastore
+      # Coloca o hadoop-aws + SDK (presentes na imagem) no classpath do Hive e
+      # carrega o hive-site.xml com a config fs.s3a do MinIO, para o metastore
+      # conseguir validar locations s3a:// ao registrar tabelas externas.
+      HIVE_AUX_JARS_PATH: /opt/hadoop/share/hadoop/tools/lib/hadoop-aws-3.3.6.jar,/opt/hadoop/share/hadoop/tools/lib/aws-java-sdk-bundle-1.12.367.jar
+      HIVE_CUSTOM_CONF_DIR: /hive_custom_conf
+    volumes:
+      - ./docker/hive/conf:/hive_custom_conf:ro
+    ports:
+      - "9083:9083"
+    mem_limit: 1g
+    networks:
+      - datalake
+
+  # Trino — engine SQL que lê as tabelas Delta da Gold direto no MinIO.
+  trino:
+    image: trinodb/trino:455
+    container_name: engdb-trino
+    profiles: ["serving"]
+    depends_on:
+      - hive-metastore
+      - minio
+    environment:
+      # usados via ${ENV:...} no catálogo delta.properties
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+    ports:
+      - "8090:8080"   # UI/API do Trino (a 8080 do host é do Airflow)
+    volumes:
+      - ./docker/trino/catalog:/etc/trino/catalog:ro
+    mem_limit: 3g
+    networks:
+      - datalake
+
+  # Metabase — dashboard analítico (One Page) consumindo a Gold via Trino.
+  metabase:
+    image: metabase/metabase:v0.50.32
+    container_name: engdb-metabase
+    profiles: ["serving"]
+    depends_on:
+      - trino
+    environment:
+      MB_DB_FILE: /metabase-data/metabase.db
+    ports:
+      - "3000:3000"
+    volumes:
+      - metabase_data:/metabase-data
+    mem_limit: 1500m
+    networks:
+      - datalake
+
 volumes:
   postgres_data:
     name: engdb_postgres_data
@@ -142,6 +203,8 @@ volumes:
     name: engdb_minio_data
   airflow_logs:
     name: engdb_airflow_logs
+  metabase_data:
+    name: engdb_metabase_data
 
 networks:
   datalake:
