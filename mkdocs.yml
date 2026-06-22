@@ -74,5 +74,6 @@ nav:
       - Camadas do Pipeline (medalhão): pipeline/CARD-038_camadas_pipeline.md
       - Ambiente Local (MinIO + PostgreSQL): infra/ambiente-local.md
       - Airflow + Papermill: infra/airflow-papermill.md
+      - Serving (Trino + Metabase): infra/serving-trino-metabase.md
   - Dashboard:
       - Requisitos do Dashboard: dashboards/CARD-006_requisitos_dashboard.md

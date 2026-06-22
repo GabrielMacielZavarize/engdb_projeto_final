@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+<!--
+  Config do Hive Metastore para acessar o MinIO via S3A — issue #46.
+  Necessário para o metastore validar os locations s3a:// ao registrar as
+  tabelas Delta externas da Gold (o Trino lê os dados; o metastore só valida
+  o caminho na hora do register_table).
+  Credenciais = defaults de DEV do MinIO (ver .env.example). Se mudar o
+  MINIO_ROOT_USER/PASSWORD no .env, atualize aqui também.
+-->
+<configuration>
+  <property>
+    <name>fs.s3a.endpoint</name>
+    <value>http://minio:9000</value>
+  </property>
+  <property>
+    <name>fs.s3a.access.key</name>
+    <value>minioadmin</value>
+  </property>
+  <property>
+    <name>fs.s3a.secret.key</name>
+    <value>minioadmin</value>
+  </property>
+  <property>
+    <name>fs.s3a.path.style.access</name>
+    <value>true</value>
+  </property>
+  <property>
+    <name>fs.s3a.connection.ssl.enabled</name>
+    <value>false</value>
+  </property>
+  <property>
+    <name>fs.s3a.impl</name>
+    <value>org.apache.hadoop.fs.s3a.S3AFileSystem</value>
+  </property>
+</configuration>
