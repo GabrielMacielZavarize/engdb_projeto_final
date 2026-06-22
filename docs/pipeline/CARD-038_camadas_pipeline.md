@@ -45,7 +45,8 @@ reprocessar as camadas seguintes sem reconsultar a origem.
 Converte o CSV da Landing em **Delta Lake** aplicando os **tipos corretos**
 (timestamps, inteiros e `decimal(12,2)`), já que a origem é relacional e o
 schema é conhecido. Acrescenta metadados de linhagem (`_ingestion_date`,
-`_bronze_loaded_at`).
+`_bronze_loaded_at`) e preserva `created_at`/`updated_at` como timestamps para
+apoiar a detecção de mudanças da origem.
 
 A carga é **incremental e idempotente**: na primeira execução cria a tabela; nas
 seguintes faz `MERGE` pela **chave primária** (`whenMatchedUpdateAll` /

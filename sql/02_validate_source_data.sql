@@ -18,6 +18,149 @@ select *
 from (
     values
         (
+            'addresses_invalid_control_timestamps',
+            (
+                select count(*)::bigint
+                from source.addresses
+                where created_at is null
+                   or updated_at is null
+                   or updated_at < created_at
+            )
+        ),
+        (
+            'categories_invalid_control_timestamps',
+            (
+                select count(*)::bigint
+                from source.categories
+                where created_at is null
+                   or updated_at is null
+                   or updated_at < created_at
+            )
+        ),
+        (
+            'customers_invalid_control_timestamps',
+            (
+                select count(*)::bigint
+                from source.customers
+                where created_at is null
+                   or updated_at is null
+                   or updated_at < created_at
+            )
+        ),
+        (
+            'order_items_invalid_control_timestamps',
+            (
+                select count(*)::bigint
+                from source.order_items
+                where created_at is null
+                   or updated_at is null
+                   or updated_at < created_at
+            )
+        ),
+        (
+            'orders_invalid_control_timestamps',
+            (
+                select count(*)::bigint
+                from source.orders
+                where created_at is null
+                   or updated_at is null
+                   or updated_at < created_at
+            )
+        ),
+        (
+            'payments_invalid_control_timestamps',
+            (
+                select count(*)::bigint
+                from source.payments
+                where created_at is null
+                   or updated_at is null
+                   or updated_at < created_at
+            )
+        ),
+        (
+            'products_invalid_control_timestamps',
+            (
+                select count(*)::bigint
+                from source.products
+                where created_at is null
+                   or updated_at is null
+                   or updated_at < created_at
+            )
+        ),
+        (
+            'reviews_invalid_control_timestamps',
+            (
+                select count(*)::bigint
+                from source.reviews
+                where created_at is null
+                   or updated_at is null
+                   or updated_at < created_at
+            )
+        ),
+        (
+            'sellers_invalid_control_timestamps',
+            (
+                select count(*)::bigint
+                from source.sellers
+                where created_at is null
+                   or updated_at is null
+                   or updated_at < created_at
+            )
+        ),
+        (
+            'shipments_invalid_control_timestamps',
+            (
+                select count(*)::bigint
+                from source.shipments
+                where created_at is null
+                   or updated_at is null
+                   or updated_at < created_at
+            )
+        )
+) as checks(check_name, offending_rows)
+order by check_name;
+
+do $$
+declare
+    table_name text;
+    offending_rows bigint;
+begin
+    foreach table_name in array array[
+        'addresses',
+        'categories',
+        'customers',
+        'order_items',
+        'orders',
+        'payments',
+        'products',
+        'reviews',
+        'sellers',
+        'shipments'
+    ] loop
+        execute format(
+            'select count(*)::bigint
+             from source.%I
+             where created_at is null
+                or updated_at is null
+                or updated_at < created_at',
+            table_name
+        )
+        into offending_rows;
+
+        if offending_rows > 0 then
+            raise exception
+                'Validation failed: table source.% has % invalid control timestamp rows.',
+                table_name,
+                offending_rows;
+        end if;
+    end loop;
+end;
+$$;
+
+select *
+from (
+    values
+        (
             'addresses_without_customer',
             (
                 select count(*)::bigint
