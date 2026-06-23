@@ -7,6 +7,14 @@
 data/
 *.local
 
+# Log de execução do pipeline (gerado localmente)
+pipeline_run.log
+
+# Driver Starburst baixado/montado localmente — ele é obtido no build da
+# imagem do Metabase (docker/metabase/Dockerfile), não deve ser versionado.
+docker/metabase/plugins/
+*.metabase-driver.jar
+
 # Saídas geradas pelo Papermill / notebooks
 notebooks/output/
 notebooks/runs/
