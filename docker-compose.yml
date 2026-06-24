@@ -181,7 +181,13 @@ services:
 
   # Metabase — dashboard analítico (One Page) consumindo a Gold via Trino.
   metabase:
-    image: metabase/metabase:v0.50.32
+    # Imagem própria = Metabase v0.50.32 + driver Starburst/Trino 5.0.0 baixado
+    # no build (docker/metabase/Dockerfile). Reprodutível e persistente, sem
+    # depender de um .jar binário versionado/montado no host.
+    build:
+      context: .
+      dockerfile: docker/metabase/Dockerfile
+    image: engdb-metabase:local
     container_name: engdb-metabase
     profiles: ["serving"]
     depends_on:

@@ -52,9 +52,68 @@ usuário qualquer (ex.: `admin`), sem senha.
 > referência de cada indicador está em
 > [CARD-025](../dashboards/CARD-025_especificacao_kpis_metricas.md).
 
+## Reproduzir em outra máquina (após `git pull`)
+
+Para deixar o ambiente pronto em outra máquina (o driver Starburst já vem
+embutido na imagem via `docker/metabase/Dockerfile`, então não é preciso baixar
+`.jar` manualmente):
+
+```powershell
+# 1) Configurar segredos (não versionado). Preencher SOURCE_DB_USER/PASSWORD do Supabase.
+copy .env.example .env
+
+# 2) Subir o object storage e o bucket
+docker compose up -d minio createbuckets
+
+# 3) Rodar o pipeline (popula a Gold no MinIO). run_date conforme a equipe.
+docker compose --profile airflow run --rm --no-deps -e CONNECTION_CHECK_MAX_COUNT=0 airflow bash -c '
+  papermill notebooks/landing/landing_ingestao.ipynb     notebooks/runs/landing.ipynb -p run_date 2026-06-22
+  papermill notebooks/bronze/bronze_ingestao.ipynb       notebooks/runs/bronze.ipynb  -p run_date 2026-06-22
+  papermill notebooks/silver/silver_conformacao.ipynb    notebooks/runs/silver.ipynb
+  papermill notebooks/gold/gold_modelo_dimensional.ipynb notebooks/runs/gold.ipynb    -p run_date 2026-06-22
+'
+
+# 4) Subir o serving (builda a imagem do Metabase com o driver Starburst 5.0.0)
+docker compose --profile serving up -d --build
+
+# 5) Registrar as tabelas da Gold no Trino
+docker compose exec -T trino trino < docker/trino/register_gold_tables.sql
+```
+
+> O dashboard "One Page" é montado **manualmente** no Metabase. Os SQLs finais
+> de cada card estão em [`../dashboards/dashboard_queries.sql`](../dashboards/dashboard_queries.sql)
+> e o layout/visualizações em [`../dashboards/dashboard_one_page.md`](../dashboards/dashboard_one_page.md).
+
+## ⚠️ Hive Metastore efêmero — re-registrar a Gold após `down`/`up`
+
+O Hive Metastore deste projeto usa **Derby embutido, com armazenamento efêmero**
+(sem volume): os registros das tabelas vivem dentro do próprio container. Por
+isso, **todo ciclo de `docker compose down` seguido de `up` apaga o registro das
+tabelas da Gold no Trino** (os dados Delta em si continuam intactos no MinIO).
+
+Depois de subir o ambiente novamente, **registre de novo as tabelas da Gold**:
+
+```powershell
+docker compose exec -T trino trino < docker/trino/register_gold_tables.sql
+```
+
+Antes de abrir o dashboard para apresentação, **valide** que a Gold está
+disponível no Trino:
+
+```powershell
+docker compose exec trino trino --execute "SELECT count(*) FROM delta.gold.fact_orders"
+```
+
+O resultado esperado é **`15001`**. Se vier vazio ou com erro de schema/tabela,
+a re-registração acima ainda não foi feita — rode o `register_gold_tables.sql`
+antes de continuar, ou todos os cards do dashboard falharão.
+
 ## Notas
 
 - O Hive Metastore usa Derby embutido (efêmero): se recriar o container, rode o
   `register_gold_tables.sql` de novo.
+- O driver Starburst/Trino do Metabase é baixado no build da imagem
+  (`docker/metabase/Dockerfile`, release **5.0.0** = linha Metabase 0.50.x);
+  não versionamos o `.jar`.
 - O Trino acessa o MinIO via S3 nativo (`s3://datalake/...`, `path-style`),
   com credenciais lidas das variáveis `MINIO_ROOT_USER`/`MINIO_ROOT_PASSWORD`.
