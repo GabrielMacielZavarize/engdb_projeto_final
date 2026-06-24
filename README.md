@@ -140,3 +140,25 @@ Gráficos: **Vendas por Mês** e **Top 10 Categorias Vendidas**. Evidências em 
 ## Padrões de contribuição
 
 Issues → branch por issue → Conventional Commits → Pull Request com revisão → *squash merge* na `main` (protegida). Detalhes em [`docs/PADROES.md`](docs/PADROES.md).
+
+## Referências
+
+### Projeto de referência (professor)
+
+- [jlsilva01/projeto-ed-satc](https://github.com/jlsilva01/projeto-ed-satc) — projeto-base de Engenharia de Dados disponibilizado pelo professor.
+
+### Dataset
+
+- [Brazilian E-Commerce Public Dataset by Olist (Kaggle)](https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce)
+
+### Documentação das tecnologias
+
+- [Apache Spark](https://spark.apache.org/docs/latest/) · [PySpark](https://spark.apache.org/docs/latest/api/python/)
+- [Delta Lake](https://docs.delta.io/latest/index.html)
+- [Apache Airflow](https://airflow.apache.org/docs/) · [Papermill](https://papermill.readthedocs.io/)
+- [MinIO](https://min.io/docs/minio/container/index.html)
+- [Trino](https://trino.io/docs/current/) · [Apache Hive Metastore](https://hive.apache.org/)
+- [Metabase](https://www.metabase.com/docs/latest/) · [Starburst driver para Metabase](https://www.starburst.io/blog/metabase-trino/)
+- [Supabase](https://supabase.com/docs)
+- [MkDocs](https://www.mkdocs.org/) · [Material for MkDocs](https://squidfunk.github.io/mkdocs-material/)
+- [Docker Compose](https://docs.docker.com/compose/)
