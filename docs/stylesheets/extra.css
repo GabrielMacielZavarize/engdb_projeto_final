@@ -2,19 +2,12 @@
    Ajustes visuais do site (MkDocs Material) — projeto EngDB.
    ============================================================ */
 
-/* ---- Footer fixo e COMPACTO ---------------------------------------------
-   Mantém fixa na base apenas a barra fina (copyright). A navegação
-   "Anterior / Próximo" (volumosa) sai do rodapé para não cobrir o conteúdo —
-   a navegação entre páginas continua pelo menu lateral esquerdo. */
+/* ---- Footer NÃO fixo e compacto -----------------------------------------
+   O rodapé fica no fim da página e rola junto com o conteúdo (não gruda na
+   tela). A navegação "Anterior / Próximo" sai do rodapé; a navegação entre
+   páginas continua pelo menu lateral esquerdo. */
 .md-footer__inner {
   display: none;
-}
-
-.md-footer {
-  position: sticky;
-  bottom: 0;
-  z-index: 4;
-  box-shadow: 0 -0.1rem 0.25rem rgba(0, 0, 0, 0.15);
 }
 
 /* deixa a barra inferior bem mais fina */
