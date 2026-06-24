@@ -85,11 +85,11 @@ Para os fatos, os grãos usados pela Gold continuam:
 
 Os artefatos da implementação ficaram organizados assim:
 
-- DDL principal: [`sql/01_create_source_schema.sql`](../../sql/01_create_source_schema.sql)
-- Validação pós-carga: [`sql/02_validate_source_data.sql`](../../sql/02_validate_source_data.sql)
-- Cenário de mudanças para demo incremental: [`sql/03_seed_incremental_demo.sql`](../../sql/03_seed_incremental_demo.sql)
-- Geração da massa reduzida: [`scripts/build_reduced_source_data.ps1`](../../scripts/build_reduced_source_data.ps1)
-- Script de carga para Supabase/PostgreSQL: [`scripts/load_source_data.ps1`](../../scripts/load_source_data.ps1)
+- DDL principal: [`sql/01_create_source_schema.sql`](https://github.com/GabrielMacielZavarize/engdb_projeto_final/blob/main/sql/01_create_source_schema.sql)
+- Validação pós-carga: [`sql/02_validate_source_data.sql`](https://github.com/GabrielMacielZavarize/engdb_projeto_final/blob/main/sql/02_validate_source_data.sql)
+- Cenário de mudanças para demo incremental: [`sql/03_seed_incremental_demo.sql`](https://github.com/GabrielMacielZavarize/engdb_projeto_final/blob/main/sql/03_seed_incremental_demo.sql)
+- Geração da massa reduzida: [`scripts/build_reduced_source_data.ps1`](https://github.com/GabrielMacielZavarize/engdb_projeto_final/blob/main/scripts/build_reduced_source_data.ps1)
+- Script de carga para Supabase/PostgreSQL: [`scripts/load_source_data.ps1`](https://github.com/GabrielMacielZavarize/engdb_projeto_final/blob/main/scripts/load_source_data.ps1)
 
 ## Estratégia de recorte da massa
 

@@ -1,0 +1,33 @@
+/* ============================================================
+   Ajustes visuais do site (MkDocs Material) — projeto EngDB.
+   ============================================================ */
+
+/* ---- Footer fixo na base da janela --------------------------------------
+   Mantém o rodapé (navegação anterior/próximo + copyright) sempre visível
+   na parte de baixo, sem empurrar/quebrar o conteúdo. */
+.md-footer {
+  position: sticky;
+  bottom: 0;
+  z-index: 4;
+  box-shadow: 0 -0.1rem 0.4rem rgba(0, 0, 0, 0.2);
+}
+
+/* ---- Títulos de seção maiores, para diferenciar a hierarquia ------------- */
+.md-typeset h1 {
+  font-size: 2.4rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.md-typeset h2 {
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin-top: 1.8em;
+  padding-bottom: 0.25rem;
+  border-bottom: 0.05rem solid var(--md-default-fg-color--lightest);
+}
+
+.md-typeset h3 {
+  font-size: 1.4rem;
+  font-weight: 600;
+}
