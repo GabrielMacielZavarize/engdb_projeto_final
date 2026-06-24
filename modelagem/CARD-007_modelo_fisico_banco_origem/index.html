@@ -1,0 +1,2346 @@
+
+<!doctype html>
+<html lang="pt" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Pipeline de dados de ponta a ponta sobre o dataset Olist (medalhão, Spark/Delta, Airflow, Trino, Metabase).">
+      
+      
+      
+      
+        <link rel="prev" href="../CARD-002_justificativa_selecao_atributos/">
+      
+      
+        <link rel="next" href="../../arquitetura/CARD-004_arquitetura_tecnica_pipeline/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Modelo Físico (Supabase) - Projeto Final - Engenharia de Dados</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#modelo-fisico-do-banco-de-origem-no-supabase" class="md-skip">
+          Pular para conteúdo
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Cabeçalho">
+    <a href="../.." title="Projeto Final - Engenharia de Dados" class="md-header__button md-logo" aria-label="Projeto Final - Engenharia de Dados" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Projeto Final - Engenharia de Dados
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Modelo Físico (Supabase)
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Modo escuro"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Modo escuro" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Modo claro"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Modo claro" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Buscar" placeholder="Buscar" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Pesquisar">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Limpar" aria-label="Limpar" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Inicializando busca
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/GabrielMacielZavarize/engdb_projeto_final" title="Ir para repositório" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    engdb_projeto_final
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navegação" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Projeto Final - Engenharia de Dados" class="md-nav__button md-logo" aria-label="Projeto Final - Engenharia de Dados" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Projeto Final - Engenharia de Dados
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/GabrielMacielZavarize/engdb_projeto_final" title="Ir para repositório" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    engdb_projeto_final
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Visão Geral
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Visão Geral
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../PADROES/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Padrões de Contribuição
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Domínio
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Domínio
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../dominio/CARD-001_definicao_dominio/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Definição do Domínio
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../documentos/CARD-001_analise_de_dataset/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Análise do Dataset
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Modelagem
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Modelagem
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../documentos/CARD-001_DER_Preliminar/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DER Preliminar
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../CARD-003_der_inicial_olist/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DER Inicial (Olist)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../CARD-003_dicionario_dados_inicial/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dicionário de Dados
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../CARD-002_justificativa_selecao_atributos/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Justificativa dos Atributos
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Modelo Físico (Supabase)
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Modelo Físico (Supabase)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Índice">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Índice
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#contexto" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Contexto
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#estrutura-fisica-adotada" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Estrutura física adotada
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#decisoes-de-modelagem" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Decisões de modelagem
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#controles-para-carga-incremental" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Controles para carga incremental
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#chaves-de-negocio-para-scd-tipo-2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Chaves de negócio para SCD Tipo 2
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#arquivos-versionados" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Arquivos versionados
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#estrategia-de-recorte-da-massa" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Estratégia de recorte da massa
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#contrato-esperado-para-os-arquivos-de-carga" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Contrato esperado para os arquivos de carga
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Contrato esperado para os arquivos de carga">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#colunas-esperadas-por-tabela" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Colunas esperadas por tabela
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Colunas esperadas por tabela">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#categories" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        categories
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#customers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        customers
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sellers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        sellers
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#products" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        products
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#orders" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        orders
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#addresses" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        addresses
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#payments" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        payments
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#reviews" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        reviews
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#shipments" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        shipments
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#order_items" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        order_items
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#como-executar-no-supabase" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Como executar no Supabase
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Como executar no Supabase">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pre-requisitos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pré-requisitos
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#exemplo-de-execucao" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Exemplo de execução
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#como-disparar-o-cenario-de-mudancas-incrementais" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Como disparar o cenário de mudanças incrementais
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#volume-minimo-esperado-para-o-trabalho" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Volume mínimo esperado para o trabalho
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#formato-do-arquivo-opcional-de-contagens-esperadas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Formato do arquivo opcional de contagens esperadas
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#validacoes-implementadas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Validações implementadas
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#observacoes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Observações
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Arquitetura
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Arquitetura
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../arquitetura/CARD-004_arquitetura_tecnica_pipeline/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Arquitetura Técnica
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../arquitetura/CARD-005_diagrama_arquitetura_dados/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Diagrama da Arquitetura
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Pipeline & Infraestrutura
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Pipeline & Infraestrutura
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../PIPELINE-24_notebook_standard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Padrão de Notebooks (Spark/Delta)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pipeline/CARD-038_camadas_pipeline/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Camadas do Pipeline (medalhão)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../infra/ambiente-local/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ambiente Local (MinIO + PostgreSQL)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../infra/airflow-papermill/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Airflow + Papermill
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../infra/serving-trino-metabase/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Serving (Trino + Metabase)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dashboard
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Dashboard
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../dashboards/CARD-006_requisitos_dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Requisitos do Dashboard
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../dashboards/CARD-025_especificacao_kpis_metricas/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Especificação dos KPIs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../dashboards/dashboard_one_page/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dashboard One Page
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Índice">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Índice
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#contexto" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Contexto
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#estrutura-fisica-adotada" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Estrutura física adotada
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#decisoes-de-modelagem" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Decisões de modelagem
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#controles-para-carga-incremental" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Controles para carga incremental
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#chaves-de-negocio-para-scd-tipo-2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Chaves de negócio para SCD Tipo 2
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#arquivos-versionados" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Arquivos versionados
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#estrategia-de-recorte-da-massa" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Estratégia de recorte da massa
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#contrato-esperado-para-os-arquivos-de-carga" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Contrato esperado para os arquivos de carga
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Contrato esperado para os arquivos de carga">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#colunas-esperadas-por-tabela" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Colunas esperadas por tabela
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Colunas esperadas por tabela">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#categories" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        categories
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#customers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        customers
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sellers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        sellers
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#products" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        products
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#orders" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        orders
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#addresses" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        addresses
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#payments" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        payments
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#reviews" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        reviews
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#shipments" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        shipments
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#order_items" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        order_items
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#como-executar-no-supabase" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Como executar no Supabase
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Como executar no Supabase">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pre-requisitos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pré-requisitos
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#exemplo-de-execucao" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Exemplo de execução
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#como-disparar-o-cenario-de-mudancas-incrementais" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Como disparar o cenário de mudanças incrementais
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#volume-minimo-esperado-para-o-trabalho" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Volume mínimo esperado para o trabalho
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#formato-do-arquivo-opcional-de-contagens-esperadas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Formato do arquivo opcional de contagens esperadas
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#validacoes-implementadas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Validações implementadas
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#observacoes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Observações
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="modelo-fisico-do-banco-de-origem-no-supabase">Modelo Físico do Banco de Origem no Supabase<a class="headerlink" href="#modelo-fisico-do-banco-de-origem-no-supabase" title="Permanent link">&para;</a></h1>
+<h2 id="contexto">Contexto<a class="headerlink" href="#contexto" title="Permanent link">&para;</a></h2>
+<p>Este documento consolida a modelagem física do banco de origem do projeto no <strong>Supabase (PostgreSQL)</strong> com base no DER lógico documentado nos cards anteriores:</p>
+<ul>
+<li><a href="../CARD-002_justificativa_selecao_atributos/">CARD-002 - Justificativa de Seleção de Atributos</a></li>
+<li><a href="../CARD-003_der_inicial_olist/">CARD-003 - DER Inicial Olist</a></li>
+<li>Imagem de referência: <code>docs/imagens/der_logico.png</code></li>
+</ul>
+<p>O objetivo desta etapa é transformar o DER lógico em um schema executável, com chaves primárias, chaves estrangeiras, tipos e constraints suficientes para garantir integridade na carga da massa sintética.</p>
+<h2 id="estrutura-fisica-adotada">Estrutura física adotada<a class="headerlink" href="#estrutura-fisica-adotada" title="Permanent link">&para;</a></h2>
+<p>O banco foi organizado no schema <code>source</code>, que representa a camada transacional de origem dentro do projeto no Supabase.</p>
+<p>As tabelas criadas são:</p>
+<ul>
+<li><code>source.categories</code></li>
+<li><code>source.customers</code></li>
+<li><code>source.sellers</code></li>
+<li><code>source.products</code></li>
+<li><code>source.orders</code></li>
+<li><code>source.addresses</code></li>
+<li><code>source.payments</code></li>
+<li><code>source.reviews</code></li>
+<li><code>source.shipments</code></li>
+<li><code>source.order_items</code></li>
+</ul>
+<h2 id="decisoes-de-modelagem">Decisões de modelagem<a class="headerlink" href="#decisoes-de-modelagem" title="Permanent link">&para;</a></h2>
+<p>O modelo físico segue o DER lógico e adiciona algumas proteções importantes para a carga:</p>
+<ul>
+<li><code>reviews.order_id</code> e <code>shipments.order_id</code> possuem <code>UNIQUE</code> para preservar a cardinalidade <code>1:1</code>.</li>
+<li><code>payments</code> preserva a identidade lógica por <code>payment_id</code>, mas também garante unicidade de <code>order_id + payment_sequential</code>.</li>
+<li><code>order_items</code> preserva a chave lógica <code>order_item_id</code> como identificador global do item, o que exige valores únicos já na massa sintética gerada.</li>
+<li><code>products.category_id</code> é opcional (<code>NULL</code>) porque a própria documentação do projeto indica que nem todo produto precisa ter categoria preenchida.</li>
+<li>Campos numéricos de valor, peso, dimensões e quantidade possuem checks de não negatividade.</li>
+<li>Todas as tabelas possuem <code>created_at</code> e <code>updated_at</code> para permitir detecção de mudanças na origem.</li>
+<li>O campo <code>updated_at</code> é mantido por trigger em updates comuns e também pode ser definido explicitamente pelos scripts de demonstração.</li>
+</ul>
+<h2 id="controles-para-carga-incremental">Controles para carga incremental<a class="headerlink" href="#controles-para-carga-incremental" title="Permanent link">&para;</a></h2>
+<p>A origem <code>source</code> precisa expor uma forma simples de identificar registros novos ou alterados.
+Para isso, todas as tabelas carregadas pelo pipeline recebem as colunas:</p>
+<ul>
+<li><code>created_at</code>: data/hora de criação do registro na origem;</li>
+<li><code>updated_at</code>: data/hora da última alteração relevante do registro.</li>
+</ul>
+<p>Essas colunas são criadas com <code>default current_timestamp</code>, possuem validação
+<code>updated_at &gt;= created_at</code> e são indexadas por <code>updated_at</code>. O DDL também cria
+uma função/trigger para atualizar <code>updated_at</code> automaticamente quando um registro
+for modificado sem informar um valor explícito.</p>
+<p>Como a carga inicial usa arquivos CSV/JSON gerados a partir do dataset Olist,
+<code>created_at</code> e <code>updated_at</code> não precisam existir nos arquivos de entrada. O
+loader informa somente as colunas de negócio e o PostgreSQL preenche os campos
+de controle pelos defaults.</p>
+<h2 id="chaves-de-negocio-para-scd-tipo-2">Chaves de negócio para SCD Tipo 2<a class="headerlink" href="#chaves-de-negocio-para-scd-tipo-2" title="Permanent link">&para;</a></h2>
+<p>As dimensões históricas definidas na camada Gold usam as seguintes chaves de
+negócio:</p>
+<table>
+<thead>
+<tr>
+<th>Dimensão Gold</th>
+<th>Tabela(s) de origem</th>
+<th>Chave de negócio</th>
+<th>Atributos versionados principais</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>dim_customer</code></td>
+<td><code>source.customers</code></td>
+<td><code>customer_id</code></td>
+<td><code>customer_unique_id</code>, CEP, cidade e UF</td>
+</tr>
+<tr>
+<td><code>dim_seller</code></td>
+<td><code>source.sellers</code></td>
+<td><code>seller_id</code></td>
+<td>CEP, cidade e UF</td>
+</tr>
+<tr>
+<td><code>dim_product</code></td>
+<td><code>source.products</code> + <code>source.categories</code></td>
+<td><code>product_id</code></td>
+<td>categoria, peso, fotos e dimensões físicas</td>
+</tr>
+<tr>
+<td><code>dim_date</code></td>
+<td>gerada na Gold</td>
+<td><code>date_sk</code></td>
+<td>dimensão estática de calendário</td>
+</tr>
+</tbody>
+</table>
+<p>Observação sobre clientes: o dataset Olist também possui <code>customer_unique_id</code>,
+mas o modelo Gold atual usa <code>customer_id</code> como chave natural da <code>dim_customer</code>,
+pois é a chave que relaciona diretamente clientes e pedidos no schema <code>source</code>.</p>
+<p>Para os fatos, os grãos usados pela Gold continuam:</p>
+<table>
+<thead>
+<tr>
+<th>Fato Gold</th>
+<th>Tabela(s) de origem</th>
+<th>Chave/grão</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>fact_orders</code></td>
+<td><code>source.orders</code> + pagamentos agregados</td>
+<td><code>order_id</code></td>
+</tr>
+<tr>
+<td><code>fact_order_items</code></td>
+<td><code>source.order_items</code></td>
+<td><code>order_item_id</code></td>
+</tr>
+<tr>
+<td><code>fact_payments</code></td>
+<td><code>source.payments</code></td>
+<td><code>payment_id</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="arquivos-versionados">Arquivos versionados<a class="headerlink" href="#arquivos-versionados" title="Permanent link">&para;</a></h2>
+<p>Os artefatos da implementação ficaram organizados assim:</p>
+<ul>
+<li>DDL principal: <a href="https://github.com/GabrielMacielZavarize/engdb_projeto_final/blob/main/sql/01_create_source_schema.sql"><code>sql/01_create_source_schema.sql</code></a></li>
+<li>Validação pós-carga: <a href="https://github.com/GabrielMacielZavarize/engdb_projeto_final/blob/main/sql/02_validate_source_data.sql"><code>sql/02_validate_source_data.sql</code></a></li>
+<li>Cenário de mudanças para demo incremental: <a href="https://github.com/GabrielMacielZavarize/engdb_projeto_final/blob/main/sql/03_seed_incremental_demo.sql"><code>sql/03_seed_incremental_demo.sql</code></a></li>
+<li>Geração da massa reduzida: <a href="https://github.com/GabrielMacielZavarize/engdb_projeto_final/blob/main/scripts/build_reduced_source_data.ps1"><code>scripts/build_reduced_source_data.ps1</code></a></li>
+<li>Script de carga para Supabase/PostgreSQL: <a href="https://github.com/GabrielMacielZavarize/engdb_projeto_final/blob/main/scripts/load_source_data.ps1"><code>scripts/load_source_data.ps1</code></a></li>
+</ul>
+<h2 id="estrategia-de-recorte-da-massa">Estratégia de recorte da massa<a class="headerlink" href="#estrategia-de-recorte-da-massa" title="Permanent link">&para;</a></h2>
+<p>Como o dataset original da Olist é maior do que o necessário para o trabalho, a carga no Supabase deve utilizar uma <strong>massa reduzida, mas representativa</strong>.</p>
+<p>O script <code>build_reduced_source_data.ps1</code> foi pensado para isso:</p>
+<ul>
+<li>mira um volume mínimo total de <code>100.000</code> linhas somando as 10 tabelas;</li>
+<li>seleciona um subconjunto de pedidos com distribuição por mês, evitando concentrar tudo em um único ano ou período;</li>
+<li>preserva variedade de <code>order_status</code>, importante para filtros do dashboard;</li>
+<li>mantém os relacionamentos necessários entre pedidos, pagamentos, itens, produtos, vendedores e clientes;</li>
+<li>gera IDs técnicos compatíveis com o modelo físico para <code>addresses</code>, <code>payments</code>, <code>shipments</code> e <code>order_items</code>;</li>
+<li>exporta um <code>expected-counts.json</code> e um <code>selection-summary.json</code> para apoiar a validação da carga.</li>
+</ul>
+<p>Na prática, o fluxo recomendado é:</p>
+<ol>
+<li>baixar os CSVs do Kaggle para <code>data/raw/olist/</code>;</li>
+<li>executar o script de geração da massa reduzida para produzir <code>data/source/</code>;</li>
+<li>usar o loader para enviar <code>data/source/</code> ao Supabase.</li>
+</ol>
+<h2 id="contrato-esperado-para-os-arquivos-de-carga">Contrato esperado para os arquivos de carga<a class="headerlink" href="#contrato-esperado-para-os-arquivos-de-carga" title="Permanent link">&para;</a></h2>
+<p>O script espera uma pasta com um arquivo por entidade, em <code>CSV</code> ou <code>JSON</code>, usando os nomes abaixo:</p>
+<ul>
+<li><code>categories</code></li>
+<li><code>customers</code></li>
+<li><code>sellers</code></li>
+<li><code>products</code></li>
+<li><code>orders</code></li>
+<li><code>addresses</code></li>
+<li><code>payments</code></li>
+<li><code>reviews</code></li>
+<li><code>shipments</code></li>
+<li><code>order_items</code></li>
+</ul>
+<p>Formatos aceitos:</p>
+<ul>
+<li><code>nome_da_tabela.csv</code></li>
+<li><code>nome_da_tabela.json</code></li>
+<li><code>nome_da_tabela.jsonl</code></li>
+<li><code>nome_da_tabela.ndjson</code></li>
+</ul>
+<h3 id="colunas-esperadas-por-tabela">Colunas esperadas por tabela<a class="headerlink" href="#colunas-esperadas-por-tabela" title="Permanent link">&para;</a></h3>
+<h4 id="categories"><code>categories</code><a class="headerlink" href="#categories" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>category_id</code></li>
+<li><code>product_category_name</code></li>
+</ul>
+<h4 id="customers"><code>customers</code><a class="headerlink" href="#customers" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>customer_id</code></li>
+<li><code>customer_unique_id</code></li>
+<li><code>customer_zip_code_prefix</code></li>
+<li><code>customer_city</code></li>
+<li><code>customer_state</code></li>
+</ul>
+<h4 id="sellers"><code>sellers</code><a class="headerlink" href="#sellers" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>seller_id</code></li>
+<li><code>seller_zip_code_prefix</code></li>
+<li><code>seller_city</code></li>
+<li><code>seller_state</code></li>
+</ul>
+<h4 id="products"><code>products</code><a class="headerlink" href="#products" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>product_id</code></li>
+<li><code>category_id</code></li>
+<li><code>product_name_length</code></li>
+<li><code>product_description_length</code></li>
+<li><code>product_photos_qty</code></li>
+<li><code>product_weight_g</code></li>
+<li><code>product_length_cm</code></li>
+<li><code>product_height_cm</code></li>
+<li><code>product_width_cm</code></li>
+</ul>
+<h4 id="orders"><code>orders</code><a class="headerlink" href="#orders" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>order_id</code></li>
+<li><code>customer_id</code></li>
+<li><code>order_status</code></li>
+<li><code>order_purchase_timestamp</code></li>
+<li><code>order_approved_at</code></li>
+<li><code>order_delivered_carrier_date</code></li>
+<li><code>order_delivered_customer_date</code></li>
+<li><code>order_estimated_delivery_date</code></li>
+</ul>
+<h4 id="addresses"><code>addresses</code><a class="headerlink" href="#addresses" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>address_id</code></li>
+<li><code>customer_id</code></li>
+<li><code>zip_code</code></li>
+<li><code>city</code></li>
+<li><code>state</code></li>
+</ul>
+<h4 id="payments"><code>payments</code><a class="headerlink" href="#payments" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>payment_id</code></li>
+<li><code>order_id</code></li>
+<li><code>payment_sequential</code></li>
+<li><code>payment_type</code></li>
+<li><code>payment_installments</code></li>
+<li><code>payment_value</code></li>
+</ul>
+<h4 id="reviews"><code>reviews</code><a class="headerlink" href="#reviews" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>review_id</code></li>
+<li><code>order_id</code></li>
+<li><code>review_score</code></li>
+<li><code>review_creation_date</code></li>
+<li><code>review_answer_timestamp</code></li>
+</ul>
+<h4 id="shipments"><code>shipments</code><a class="headerlink" href="#shipments" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>shipment_id</code></li>
+<li><code>order_id</code></li>
+<li><code>shipment_status</code></li>
+<li><code>shipped_at</code></li>
+<li><code>delivered_at</code></li>
+</ul>
+<h4 id="order_items"><code>order_items</code><a class="headerlink" href="#order_items" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>order_item_id</code></li>
+<li><code>order_id</code></li>
+<li><code>product_id</code></li>
+<li><code>seller_id</code></li>
+<li><code>shipping_limit_date</code></li>
+<li><code>price</code></li>
+<li><code>freight_value</code></li>
+</ul>
+<blockquote>
+<p>As colunas <code>created_at</code> e <code>updated_at</code> fazem parte das tabelas no Supabase,
+mas não são obrigatórias nos arquivos de carga. Quando omitidas, recebem os
+valores definidos pelo banco.</p>
+</blockquote>
+<h2 id="como-executar-no-supabase">Como executar no Supabase<a class="headerlink" href="#como-executar-no-supabase" title="Permanent link">&para;</a></h2>
+<h3 id="pre-requisitos">Pré-requisitos<a class="headerlink" href="#pre-requisitos" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Um projeto Supabase com acesso à string de conexão PostgreSQL.</li>
+<li><code>psql</code> instalado na máquina cliente.</li>
+<li>Os arquivos da massa sintética em uma pasta local.</li>
+</ul>
+<blockquote>
+<p><strong>Onde achar a connection string (painel novo do Supabase):</strong> botão verde
+<strong>"Connect"</strong> no topo do dashboard → seção <strong>Session pooler</strong>. A conexão
+direta (<code>db.&lt;ref&gt;.supabase.co</code>) hoje só resolve em <strong>IPv6</strong>; como o pipeline
+roda em containers Docker que saem por <strong>IPv4</strong>, padronizamos o uso do
+<strong>pooler</strong> (<code>aws-1-&lt;regiao&gt;.pooler.supabase.com</code>, porta <code>5432</code>), cujo usuário
+vem como <code>postgres.&lt;project-ref&gt;</code>.</p>
+</blockquote>
+<h3 id="exemplo-de-execucao">Exemplo de execução<a class="headerlink" href="#exemplo-de-execucao" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="p">.\</span><span class="n">scripts</span><span class="p">\</span><span class="n">build_reduced_source_data</span><span class="p">.</span><span class="n">ps1</span> <span class="p">`</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>  <span class="n">-RawDir</span> <span class="s2">&quot;.\data\raw\olist&quot;</span> <span class="p">`</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>  <span class="n">-OutputDir</span> <span class="s2">&quot;.\data\source&quot;</span> <span class="p">`</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>  <span class="n">-TargetOrders</span> <span class="n">15000</span> <span class="p">`</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>  <span class="n">-MinimumTotalRows</span> <span class="n">100000</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="p">.\</span><span class="n">scripts</span><span class="p">\</span><span class="n">load_source_data</span><span class="p">.</span><span class="n">ps1</span> <span class="p">`</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>  <span class="n">-ConnectionString</span> <span class="s2">&quot;postgresql://postgres.[PROJECT-REF]:[SENHA]@aws-1-sa-east-1.pooler.supabase.com:5432/postgres?sslmode=require&quot;</span> <span class="p">`</span>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>  <span class="n">-DataDir</span> <span class="s2">&quot;.\data\source&quot;</span> <span class="p">`</span>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>  <span class="n">-ExpectedCountsFile</span> <span class="s2">&quot;.\data\source\expected-counts.json&quot;</span>
+</code></pre></div>
+<p>O script:</p>
+<ol>
+<li>aplica o DDL, caso necessário;</li>
+<li>limpa as tabelas do schema <code>source</code>;</li>
+<li>carrega os arquivos na ordem correta de dependência;</li>
+<li>executa as validações SQL de integridade;</li>
+<li>compara as contagens finais com um JSON opcional de volumes esperados.</li>
+</ol>
+<h2 id="como-disparar-o-cenario-de-mudancas-incrementais">Como disparar o cenário de mudanças incrementais<a class="headerlink" href="#como-disparar-o-cenario-de-mudancas-incrementais" title="Permanent link">&para;</a></h2>
+<p>Depois da primeira carga no Supabase, execute o seed de demonstração:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="n">psql</span> <span class="p">`</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>  <span class="s2">&quot;postgresql://postgres.[PROJECT-REF]:[SENHA]@aws-1-sa-east-1.pooler.supabase.com:5432/postgres?sslmode=require&quot;</span> <span class="p">`</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>  <span class="n">-X</span> <span class="p">`</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>  <span class="n">-v</span> <span class="n">ON_ERROR_STOP</span><span class="p">=</span><span class="n">1</span> <span class="p">`</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>  <span class="o">-f</span> <span class="s2">&quot;.\sql\03_seed_incremental_demo.sql&quot;</span>
+</code></pre></div>
+<p>O script <code>03_seed_incremental_demo.sql</code> prepara um cenário reproduzível:</p>
+<ul>
+<li>normaliza todos os registros existentes para o checkpoint base
+  <code>2026-01-01 00:00:00</code>;</li>
+<li>aplica updates em cliente, vendedor, produto, pedido, pagamento e remessa com
+  <code>updated_at = '2026-01-02 00:00:00'</code>;</li>
+<li>insere uma nova categoria, cliente, vendedor, produto, pedido, endereço,
+  pagamento, avaliação, remessa e item de pedido;</li>
+<li>cria o pedido demo com <code>order_purchase_timestamp = '2019-01-15 10:00:00'</code>,
+  posterior ao período original do Olist, para facilitar a demonstração de
+  checkpoint dos fatos.</li>
+</ul>
+<p>Consulta rápida para conferir o que mudou após o checkpoint base:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">select</span><span class="w"> </span><span class="s1">&#39;customers&#39;</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="k">table_name</span><span class="p">,</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">changed_rows</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="k">from</span><span class="w"> </span><span class="k">source</span><span class="p">.</span><span class="n">customers</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="k">where</span><span class="w"> </span><span class="n">updated_at</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="k">timestamp</span><span class="w"> </span><span class="s1">&#39;2026-01-01 00:00:00&#39;</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="k">union</span><span class="w"> </span><span class="k">all</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="k">select</span><span class="w"> </span><span class="s1">&#39;sellers&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="k">from</span><span class="w"> </span><span class="k">source</span><span class="p">.</span><span class="n">sellers</span>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="k">where</span><span class="w"> </span><span class="n">updated_at</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="k">timestamp</span><span class="w"> </span><span class="s1">&#39;2026-01-01 00:00:00&#39;</span>
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="k">union</span><span class="w"> </span><span class="k">all</span>
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="k">select</span><span class="w"> </span><span class="s1">&#39;products&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span>
+<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="k">from</span><span class="w"> </span><span class="k">source</span><span class="p">.</span><span class="n">products</span>
+<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="k">where</span><span class="w"> </span><span class="n">updated_at</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="k">timestamp</span><span class="w"> </span><span class="s1">&#39;2026-01-01 00:00:00&#39;</span>
+<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a><span class="k">union</span><span class="w"> </span><span class="k">all</span>
+<a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a><span class="k">select</span><span class="w"> </span><span class="s1">&#39;orders&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span>
+<a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a><span class="k">from</span><span class="w"> </span><span class="k">source</span><span class="p">.</span><span class="n">orders</span>
+<a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a><span class="k">where</span><span class="w"> </span><span class="n">updated_at</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="k">timestamp</span><span class="w"> </span><span class="s1">&#39;2026-01-01 00:00:00&#39;</span>
+<a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a><span class="k">union</span><span class="w"> </span><span class="k">all</span>
+<a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a><span class="k">select</span><span class="w"> </span><span class="s1">&#39;payments&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span>
+<a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a><span class="k">from</span><span class="w"> </span><span class="k">source</span><span class="p">.</span><span class="n">payments</span>
+<a id="__codelineno-2-19" name="__codelineno-2-19" href="#__codelineno-2-19"></a><span class="k">where</span><span class="w"> </span><span class="n">updated_at</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="k">timestamp</span><span class="w"> </span><span class="s1">&#39;2026-01-01 00:00:00&#39;</span>
+<a id="__codelineno-2-20" name="__codelineno-2-20" href="#__codelineno-2-20"></a><span class="k">order</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="k">table_name</span><span class="p">;</span>
+</code></pre></div>
+<h2 id="volume-minimo-esperado-para-o-trabalho">Volume mínimo esperado para o trabalho<a class="headerlink" href="#volume-minimo-esperado-para-o-trabalho" title="Permanent link">&para;</a></h2>
+<p>Para atender ao critério acadêmico de volume mínimo, a recomendação atual do projeto é gerar a massa com:</p>
+<ul>
+<li><code>TargetOrders = 15000</code></li>
+<li><code>MinimumTotalRows = 100000</code></li>
+</ul>
+<p>Com essa configuração, o volume das tabelas maiores compensa naturalmente dimensões menores como <code>categories</code> e <code>sellers</code>, sem achatar o recorte temporal ou os filtros do dashboard.</p>
+<h2 id="formato-do-arquivo-opcional-de-contagens-esperadas">Formato do arquivo opcional de contagens esperadas<a class="headerlink" href="#formato-do-arquivo-opcional-de-contagens-esperadas" title="Permanent link">&para;</a></h2>
+<p>Caso a massa sintética seja gerada com volume conhecido, recomenda-se manter um arquivo <code>expected-counts.json</code> com estrutura semelhante a esta:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="p">{</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">  </span><span class="nt">&quot;categories&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">71</span><span class="p">,</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">  </span><span class="nt">&quot;customers&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1000</span><span class="p">,</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">  </span><span class="nt">&quot;sellers&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w">  </span><span class="nt">&quot;products&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">500</span><span class="p">,</span>
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="w">  </span><span class="nt">&quot;orders&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">3000</span><span class="p">,</span>
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="w">  </span><span class="nt">&quot;addresses&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1000</span><span class="p">,</span>
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="w">  </span><span class="nt">&quot;payments&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">3200</span><span class="p">,</span>
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="w">  </span><span class="nt">&quot;reviews&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">2500</span><span class="p">,</span>
+<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="w">  </span><span class="nt">&quot;shipments&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">3000</span><span class="p">,</span>
+<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a><span class="w">  </span><span class="nt">&quot;order_items&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">7800</span>
+<a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a><span class="p">}</span>
+</code></pre></div>
+<h2 id="validacoes-implementadas">Validações implementadas<a class="headerlink" href="#validacoes-implementadas" title="Permanent link">&para;</a></h2>
+<p>O arquivo <code>sql/02_validate_source_data.sql</code> executa:</p>
+<ul>
+<li>contagem de linhas por tabela;</li>
+<li>checagem das colunas de controle <code>created_at</code> e <code>updated_at</code>;</li>
+<li>checagem de relacionamentos órfãos;</li>
+<li>checagem de duplicidade indevida em relacionamentos <code>1:1</code>;</li>
+<li>checagem de duplicidade em <code>payments(order_id, payment_sequential)</code>;</li>
+<li>checagem de duplicidade em <code>order_items(order_id, order_item_id)</code>.</li>
+</ul>
+<p>Se qualquer uma dessas validações retornar inconsistência, o processo encerra com erro.</p>
+<h2 id="observacoes">Observações<a class="headerlink" href="#observacoes" title="Permanent link">&para;</a></h2>
+<ul>
+<li>O modelo físico foi desenhado para a <strong>massa sintética aderente ao DER lógico</strong>, e não para ingestão direta dos CSVs originais do dataset público da Olist.</li>
+<li>Identificadores como <code>address_id</code>, <code>payment_id</code>, <code>shipment_id</code> e <code>order_item_id</code> precisam existir nos arquivos gerados, porque fazem parte do modelo lógico adotado pelo projeto.</li>
+<li>Como o projeto utilizará Supabase, a carga foi implementada com <code>psql</code> e <code>\copy</code>, o que permite importar arquivos locais para um PostgreSQL remoto com <code>sslmode=require</code>.</li>
+<li>A conexão padronizada do projeto é via <strong>Session pooler</strong> (IPv4); a conexão direta do Supabase passou a ser IPv6-only e não funciona de dentro dos containers Docker do pipeline.</li>
+<li>O schema físico pode ser usado tanto no Supabase quanto em qualquer PostgreSQL compatível.</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Voltar para o topo
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Rodapé" >
+        
+          
+          <a href="../CARD-002_justificativa_selecao_atributos/" class="md-footer__link md-footer__link--prev" aria-label="Anterior: Justificativa dos Atributos">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Anterior
+              </span>
+              <div class="md-ellipsis">
+                Justificativa dos Atributos
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../../arquitetura/CARD-004_arquitetura_tecnica_pipeline/" class="md-footer__link md-footer__link--next" aria-label="Próximo: Arquitetura Técnica">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Próximo
+              </span>
+              <div class="md-ellipsis">
+                Arquitetura Técnica
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.top", "navigation.footer", "content.code.copy", "search.highlight", "search.suggest"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copiado para \u00e1rea de transfer\u00eancia", "clipboard.copy": "Copiar para \u00e1rea de transfer\u00eancia", "search.result.more.one": "mais 1 nesta p\u00e1gina", "search.result.more.other": "# mais nesta p\u00e1gina", "search.result.none": "Nenhum documento encontrado", "search.result.one": "1 documento encontrado", "search.result.other": "# documentos encontrados", "search.result.placeholder": "Digite para iniciar a busca", "search.result.term.missing": "Ausente", "select.version": "Selecione a vers\u00e3o"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>
