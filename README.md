@@ -9,16 +9,9 @@ Pipeline de dados **ponta a ponta** sobre o [Brazilian E-Commerce Public Dataset
 
 ## Visão geral
 
-```text
- Supabase (PostgreSQL)            MinIO (Data Lake / Delta)                 Consumo
- ┌──────────────┐   JDBC   ┌──────────┬──────────┬──────────┬──────────┐  ┌────────┐   ┌──────────┐
- │ schema source│ ───────► │ Landing  │  Bronze  │  Silver  │   Gold   │─►│ Trino  │──►│ Metabase │
- │ (10 tabelas) │          │  (CSV)   │ (Delta)  │ (Delta)  │ (estrela)│  │ (SQL)  │   │(dashboard)│
- └──────────────┘          └──────────┴──────────┴──────────┴──────────┘  └────────┘   └──────────┘
-        ▲                         └──── Spark + Delta (PySpark) ────┘
-        │
-   Apache Airflow  ──  orquestra as 4 camadas via Papermill (DAG `pipeline_medalhao`, agendada)
-```
+
+<img width="2560" height="1396" alt="image" src="https://github.com/user-attachments/assets/72f07dd2-9bcc-468f-82f0-e3865be740a0" />
+
 
 - **Landing** — ingestão bruta da origem (CSV, sem transformação).
 - **Bronze** — Delta tipado, carga **incremental e idempotente** (`MERGE` por PK).
