@@ -1,6 +1,6 @@
 # Ambiente Local — Base (MinIO + PostgreSQL)
 
-Ambiente base do projeto, definido em [`docker-compose.yml`](../../docker-compose.yml).
+Ambiente base do projeto, definido em [`docker-compose.yml`](https://github.com/GabrielMacielZavarize/engdb_projeto_final/blob/main/docker-compose.yml).
 Sobe dois serviços: o **PostgreSQL** (banco de origem) e o **MinIO** (object storage que
 hospeda o Data Lake na arquitetura medalhão). Um container efêmero cria o bucket inicial.
 

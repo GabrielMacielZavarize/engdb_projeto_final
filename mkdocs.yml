@@ -53,6 +53,9 @@ validation:
   links:
     not_found: warn
 
+extra_css:
+  - stylesheets/extra.css
+
 nav:
   - Home: index.md
   - Visão Geral:
@@ -77,3 +80,5 @@ nav:
       - Serving (Trino + Metabase): infra/serving-trino-metabase.md
   - Dashboard:
       - Requisitos do Dashboard: dashboards/CARD-006_requisitos_dashboard.md
+      - Especificação dos KPIs: dashboards/CARD-025_especificacao_kpis_metricas.md
+      - Dashboard One Page: dashboards/dashboard_one_page.md
